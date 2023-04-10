@@ -1,0 +1,361 @@
+[gd_scene load_steps=40 format=2]
+
+[ext_resource path="res://demo/player/VR_Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/structure-yellow-medium.glb" type="PackedScene" id=2]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/door-wide-half.glb" type="PackedScene" id=3]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/structure-window-wide.glb" type="PackedScene" id=4]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/structure-doorway-wide.glb" type="PackedScene" id=5]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/structure-yellow-high.glb" type="PackedScene" id=6]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/structure-wall.glb" type="PackedScene" id=7]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/structure-corner-inner.glb" type="PackedScene" id=8]
+[ext_resource path="res://assets/materials/floormaterial.tres" type="Material" id=9]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/door.glb" type="PackedScene" id=10]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/conveyor-bars-stripe-fence.glb" type="PackedScene" id=11]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/top-large.glb" type="PackedScene" id=12]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/box-long.glb" type="PackedScene" id=13]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/box-large.glb" type="PackedScene" id=14]
+[ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/box-small.glb" type="PackedScene" id=15]
+[ext_resource path="res://assets/models/gdquest/mannequiny-0.3.0.glb" type="PackedScene" id=16]
+[ext_resource path="res://assets/models/gdquest/mannequiny-0.3.0.gd" type="Script" id=17]
+[ext_resource path="res://demo/Main.gd" type="Script" id=18]
+[ext_resource path="res://fonts/droid-sans/DroidSans.tres" type="DynamicFont" id=19]
+[ext_resource path="res://assets/sounds/freesound.org/659965__beussa__breathingmachine.mp3" type="AudioStream" id=20]
+[ext_resource path="res://assets/sounds/freesound.org/677227__davilca__sfx_factory_power_1.mp3" type="AudioStream" id=21]
+[ext_resource path="res://assets/sounds/freesound.org/563649__jecky1000__castle-hill-pud-30102020.mp3" type="AudioStream" id=22]
+[ext_resource path="res://addons/godot-gpt-35-turbo/GodotGPT35Turbo.tscn" type="PackedScene" id=23]
+[ext_resource path="res://scripts/Godot-AI-NPC-Controller.tscn" type="PackedScene" id=24]
+[ext_resource path="res://addons/godot-witai/VRVoiceControl-WitAI.tscn" type="PackedScene" id=25]
+[ext_resource path="res://addons/godot-tts/TTS.gd" type="Script" id=26]
+[ext_resource path="res://scripts/npc_interaction_area.gd" type="Script" id=27]
+[ext_resource path="res://fonts/droid-sans/DroidSans.ttf" type="DynamicFontData" id=28]
+
+[sub_resource type="CubeMesh" id=1]
+size = Vector3( 10, 0.25, 10 )
+
+[sub_resource type="BoxShape" id=2]
+margin = 0.01
+extents = Vector3( 5, 0.125, 5 )
+
+[sub_resource type="BoxShape" id=6]
+extents = Vector3( 0.5, 1.5, 3 )
+
+[sub_resource type="BoxShape" id=7]
+extents = Vector3( 4, 1.5, 0.5 )
+
+[sub_resource type="BoxShape" id=8]
+extents = Vector3( 0.1, 0.5, 1.25 )
+
+[sub_resource type="BoxShape" id=9]
+extents = Vector3( 0.5, 0.5, 1.9 )
+
+[sub_resource type="BoxShape" id=10]
+extents = Vector3( 0.5, 0.5, 0.5 )
+
+[sub_resource type="CapsuleShape" id=5]
+radius = 0.3
+height = 1.5
+
+[sub_resource type="BoxShape" id=3]
+extents = Vector3( 1.5, 1.5, 1.5 )
+
+[sub_resource type="CapsuleShape" id=4]
+radius = 0.3
+height = 1.5
+
+[sub_resource type="DynamicFont" id=11]
+size = 128
+use_filter = true
+font_data = ExtResource( 28 )
+
+[node name="Main" type="Spatial"]
+script = ExtResource( 18 )
+
+[node name="Sounds" type="Node" parent="."]
+
+[node name="Ambient" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource( 22 )
+autoplay = true
+
+[node name="Noise1" type="AudioStreamPlayer3D" parent="Sounds"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.90095, 0.940986, 3.17191 )
+stream = ExtResource( 21 )
+autoplay = true
+max_distance = 5.0
+
+[node name="Noise2" type="AudioStreamPlayer3D" parent="Sounds"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.47752, 0.807715, -0.995072 )
+stream = ExtResource( 20 )
+autoplay = true
+max_distance = 5.0
+
+[node name="Player" parent="." instance=ExtResource( 1 )]
+
+[node name="Floor" type="MeshInstance" parent="."]
+mesh = SubResource( 1 )
+material/0 = ExtResource( 9 )
+
+[node name="StaticBody" type="StaticBody" parent="Floor"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.01, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Floor/StaticBody"]
+shape = SubResource( 2 )
+
+[node name="Building" type="Spatial" parent="."]
+
+[node name="walls" type="Spatial" parent="Building"]
+
+[node name="structure-wall" parent="Building/walls" instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -2.5 )
+
+[node name="structure-wall3" parent="Building/walls" instance=ExtResource( 7 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 2.98909, 0.1, -1.53362 )
+
+[node name="structure-wall4" parent="Building/walls" instance=ExtResource( 7 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 2.98909, 0.1, -0.577312 )
+
+[node name="structure-wall5" parent="Building/walls" instance=ExtResource( 7 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 2.98909, 0.1, 0.391256 )
+
+[node name="structure-wall6" parent="Building/walls" instance=ExtResource( 7 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 2.98909, 0.1, 1.32216 )
+
+[node name="structure-wall2" parent="Building/walls" instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.96901, 0.1, -2.5 )
+
+[node name="structure-window-wide" parent="Building/walls" instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.49637, 0.1, -2.5 )
+
+[node name="structure-window-wide2" parent="Building/walls" instance=ExtResource( 4 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.47816, 0.1, -2.5 )
+
+[node name="structure-window-wide3" parent="Building/walls" instance=ExtResource( 4 )]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.96131, 0.1, 0.890151 )
+
+[node name="structure-corner-inner" parent="Building/walls" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.96, 0.1, -2.5 )
+
+[node name="structure-corner-inner4" parent="Building/walls" instance=ExtResource( 8 )]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.96, 0.1, 2.32541 )
+
+[node name="structure-corner-inner2" parent="Building/walls" instance=ExtResource( 8 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 2.98472, 0.1, -2.5 )
+
+[node name="structure-corner-inner3" parent="Building/walls" instance=ExtResource( 8 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 2.98751, 0.1, 2.29117 )
+
+[node name="door-wide-half" parent="Building/walls" instance=ExtResource( 3 )]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.89335, 0, -1.06804 )
+
+[node name="door-wide-half2" parent="Building/walls" instance=ExtResource( 3 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.55245, 0.142719, 2.65191 )
+
+[node name="structure-doorway-wide" parent="Building/walls" instance=ExtResource( 5 )]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.96143, 0.1, -1.07196 )
+
+[node name="structure-doorway-wide2" parent="Building/walls" instance=ExtResource( 5 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.58656, 0.1, 2.29621 )
+
+[node name="structure-wall7" parent="Building/walls" instance=ExtResource( 7 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.1525, 0.101128, 2.27312 )
+
+[node name="structure-wall8" parent="Building/walls" instance=ExtResource( 7 )]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -3.12883, 0.101128, 2.31488 )
+
+[node name="door" parent="Building/walls" instance=ExtResource( 10 )]
+transform = Transform( -1.5, 0, -2.26494e-07, 0, 1.5, 0, 2.26494e-07, 0, -1.5, -0.910367, 0.0788178, 2.92499 )
+
+[node name="door2" parent="Building/walls" instance=ExtResource( 10 )]
+transform = Transform( -1.5, 0, -2.26494e-07, 0, 1.5, 0, 2.26494e-07, 0, -1.5, -2.07547, 0.0788178, 2.92499 )
+
+[node name="top-large" parent="Building" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -1.29272, 2.10837, 2.95485 )
+
+[node name="top-large2" parent="Building" instance=ExtResource( 12 )]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -1.69472, 2.10837, 2.95485 )
+
+[node name="structure-yellow-medium" parent="Building" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, 0 )
+
+[node name="structure-yellow-medium2" parent="Building" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.1, 1.5 )
+
+[node name="structure-yellow-high" parent="Building" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.6, 0.1, -1.07438 )
+
+[node name="conveyor-bars-stripe-fence" parent="Building" instance=ExtResource( 11 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.6, 0.626, -0.491 )
+
+[node name="conveyor-bars-stripe-fence2" parent="Building" instance=ExtResource( 11 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.6, 0.626, 0.511 )
+
+[node name="conveyor-bars-stripe-fence3" parent="Building" instance=ExtResource( 11 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.6, 0.626, 1.497 )
+
+[node name="conveyor-bars-stripe-fence4" parent="Building" instance=ExtResource( 11 )]
+transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.6, 0.626, 2.47369 )
+
+[node name="top-large3" parent="Building" instance=ExtResource( 12 )]
+transform = Transform( 5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 3.12553, 0 )
+
+[node name="SpotLight" type="SpotLight" parent="Building"]
+transform = Transform( -0.998963, 0, -0.0455374, -0.0125648, 0.96118, 0.275636, 0.0437696, 0.275923, -0.960183, 1.51787, 2.12307, -3.18155 )
+light_color = Color( 0.992157, 0.952941, 0.556863, 1 )
+light_energy = 10.0
+light_indirect_energy = 0.0
+spot_range = 10.0
+
+[node name="SpotLight2" type="SpotLight" parent="Building"]
+transform = Transform( -0.998963, -1.86071e-09, -0.0455374, -0.0211614, 0.885467, 0.464221, 0.0403218, 0.464703, -0.884548, -1.51136, 2.06798, -3.18851 )
+light_color = Color( 0.992157, 0.952941, 0.556863, 1 )
+light_energy = 10.0
+light_indirect_energy = 0.0
+spot_range = 10.0
+
+[node name="box-small" parent="Building" instance=ExtResource( 15 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.51129, 1.0183, 0 )
+
+[node name="box-long" parent="Building" instance=ExtResource( 13 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.79551, 0.139969, 2.3987 )
+
+[node name="box-large" parent="Building" instance=ExtResource( 14 )]
+transform = Transform( 1, 0, 0, 0, 0.765899, 0.642961, 0, -0.642961, 0.765899, -3.79753, 0.461386, 1.94084 )
+
+[node name="Colliders" type="Spatial" parent="Building"]
+
+[node name="Wall1" type="StaticBody" parent="Building/Colliders"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.98297, 1.65852, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Building/Colliders/Wall1"]
+shape = SubResource( 6 )
+
+[node name="Wall2" type="StaticBody" parent="Building/Colliders"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.87083, 1.62879, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Building/Colliders/Wall2"]
+shape = SubResource( 6 )
+
+[node name="Wall3" type="StaticBody" parent="Building/Colliders"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.286478, 1.65294, -3.48986 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Building/Colliders/Wall3"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0658606, 0, 0 )
+shape = SubResource( 7 )
+
+[node name="Wall4" type="StaticBody" parent="Building/Colliders"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.293998, 1.65177, 3.16417 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Building/Colliders/Wall4"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0658606, 0, 0 )
+shape = SubResource( 7 )
+
+[node name="Barriers" type="StaticBody" parent="Building/Colliders"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.98993, 0.63041, 0.733003 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Building/Colliders/Barriers"]
+shape = SubResource( 8 )
+
+[node name="Conveyor" type="StaticBody" parent="Building/Colliders"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.64949, 0.900596, 0.828486 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Building/Colliders/Conveyor"]
+shape = SubResource( 9 )
+
+[node name="Boxes" type="StaticBody" parent="Building/Colliders"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.76284, 0.657233, 2.04093 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Building/Colliders/Boxes"]
+shape = SubResource( 10 )
+
+[node name="AI_NPC" type="Spatial" parent="."]
+transform = Transform( 0.00153585, 0, 0.999999, 0, 1, 0, -0.999999, 0, 0.00153585, -3.52453, 0.139575, 0 )
+
+[node name="NPC" parent="AI_NPC" instance=ExtResource( 16 )]
+script = ExtResource( 17 )
+
+[node name="KinematicBody" type="KinematicBody" parent="AI_NPC/NPC"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0470702, 1.01376, -7.22408e-05 )
+
+[node name="CollisionShape" type="CollisionShape" parent="AI_NPC/NPC/KinematicBody"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
+shape = SubResource( 5 )
+
+[node name="npc_dialogue_enabled_area" type="Area" parent="AI_NPC"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.38696e-05, 0.978153, 0.0350752 )
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape" type="CollisionShape" parent="AI_NPC/npc_dialogue_enabled_area"]
+shape = SubResource( 3 )
+
+[node name="npc_pointer_interaction_area" type="Area" parent="AI_NPC"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000232985, 1.0048, 0.151697 )
+collision_layer = 4
+script = ExtResource( 27 )
+
+[node name="CollisionShape" type="CollisionShape" parent="AI_NPC/npc_pointer_interaction_area"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
+shape = SubResource( 4 )
+
+[node name="InteractLabel3D" type="Label3D" parent="AI_NPC/npc_pointer_interaction_area"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000867405, 0.342965, 0.564771 )
+visible = false
+pixel_size = 0.001
+billboard = 2
+text = "Press Trigger to talk."
+font = ExtResource( 19 )
+
+[node name="InstructionsLabel3D" type="Label3D" parent="."]
+transform = Transform( 0.618559, 0, 0.785738, 0, 1, 0, -0.785738, 0, 0.618559, -2.48897, 1.55772, -1.34009 )
+pixel_size = 0.001
+text = "Either walk close to the NPC and press the B/Y button or point to the NPC and press the trigger button to start your microphone to talk.  Press the button again to stop talking and send for processing."
+font = ExtResource( 19 )
+horizontal_alignment = 3
+autowrap = true
+width = 1000.0
+
+[node name="ExitLabel3D" type="Label3D" parent="."]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -0.892779, 1.78868, 2.9187 )
+pixel_size = 0.001
+modulate = Color( 0.882353, 0.0431373, 0.160784, 1 )
+text = "EXIT
+Press both Grip buttons together to quit."
+font = SubResource( 11 )
+autowrap = true
+width = 600.0
+
+[node name="ExitLabel3D2" type="Label3D" parent="."]
+transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -2.04761, 1.78873, 2.9187 )
+pixel_size = 0.001
+modulate = Color( 0.882353, 0.0431373, 0.160784, 1 )
+text = "EXIT
+
+...Or say \"quit\" to Bob."
+font = SubResource( 11 )
+autowrap = true
+width = 600.0
+
+[node name="Godot-AI-NPC-Controller" parent="." instance=ExtResource( 24 )]
+
+[node name="VRVoiceControl-WitAI" parent="Godot-AI-NPC-Controller" instance=ExtResource( 25 )]
+
+[node name="GodotGPT35Turbo" parent="Godot-AI-NPC-Controller" instance=ExtResource( 23 )]
+
+[node name="Text-to-Speech" type="Node" parent="Godot-AI-NPC-Controller"]
+pause_mode = 2
+script = ExtResource( 26 )
+
+[node name="InteractLabel3D" type="Label3D" parent="Godot-AI-NPC-Controller"]
+transform = Transform( 0.00153585, 0, 0.999999, 0, 1, 0, -0.999999, 0, 0.00153585, -3.06764, 2.15063, 9.31323e-10 )
+visible = false
+pixel_size = 0.001
+billboard = 2
+text = "In NPC proximity. Press B / Y to talk."
+font = ExtResource( 19 )
+
+[node name="MicActiveLabel3D" type="Label3D" parent="Godot-AI-NPC-Controller"]
+transform = Transform( 0.602595, 0, 0.798047, 0, 1, 0, -0.798047, 0, 0.602595, -2.48017, 1.21867, -1.32777 )
+visible = false
+pixel_size = 0.001
+modulate = Color( 0.882353, 0.0431373, 0.160784, 1 )
+text = "Mic recording..."
+font = SubResource( 11 )

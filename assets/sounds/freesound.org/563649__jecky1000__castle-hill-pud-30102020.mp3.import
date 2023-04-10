@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/563649__jecky1000__castle-hill-pud-30102020.mp3-2f5867578c87357063028f7e859087c9.mp3str"
+
+[deps]
+
+source_file="res://assets/sounds/freesound.org/563649__jecky1000__castle-hill-pud-30102020.mp3"
+dest_files=[ "res://.import/563649__jecky1000__castle-hill-pud-30102020.mp3-2f5867578c87357063028f7e859087c9.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

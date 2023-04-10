@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/godot-xr-tools/player/player_body.gd" type="Script" id=1]
+
+[node name="PlayerBody" type="KinematicBody" groups=["player_body"]]
+collision_layer = 524288
+collision_mask = 1023
+script = ExtResource( 1 )
