@@ -4,3 +4,4 @@
 
 [node name="GodotGPT35Turbo" type="Node"]
 script = ExtResource( 1 )
+api_key = ""

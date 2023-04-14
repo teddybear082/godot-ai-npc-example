@@ -38,6 +38,11 @@ func _ready():
 	# Connect AI response generated signal from GPT to handler function
 	gpt_node.connect("AI_response_generated", self, "_on_gpt_3_5_turbo_processed")
 	
+	# Set wit.ai API key
+	wit_ai_node.set_token("put_your_token_here")
+	
+	# Set GPT API key
+	gpt_node.set_api_key("put_your_API_key_here")
 	
 # Handler for player VR button presses to determine if player is trying to activate or stop mic while in proximity of NPC
 func _on_player_controller_button_pressed(button):

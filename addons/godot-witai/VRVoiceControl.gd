@@ -38,7 +38,7 @@ var sending = false
 var interface_enabled = false
 
 func _ready():
-	#token = "JLJ5UPYLXLKA3DGNLSKZ5QKELHWHHUPF"
+	#token = "put your wit.ai token here"
 	endpoint = "https://api.wit.ai/speech"
 	audio_buffer.resize(2*target_rate*maxlen_sec)
 	
