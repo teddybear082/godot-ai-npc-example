@@ -11,18 +11,31 @@ export(String) var mic_recording_text = "Mic recording..."
 # Variable for text to display while waiting for response
 export(String) var waiting_text = "Waiting for response..."
 
+# Enum for text to speech choice
+enum text_to_speech_type {
+	GODOT,
+	ELEVENLABS
+}
+
+# Export for text to speech choice
+export(text_to_speech_type) var text_to_speech_choice
+
+
 # Nodes used for wi, gpt, and text to speech
 onready var wit_ai_node = get_node("VRVoiceControl-WitAI")
 onready var gpt_node = get_node("GodotGPT35Turbo")
 onready var interact_label3D = get_node("InteractLabel3D")
 onready var mic_active_label3D = get_node("MicActiveLabel3D")
 onready var text_to_speech = get_node("Text-to-Speech")
+onready var convai_node = get_node("GodotConvAI")
+onready var eleven_labs_tts_node = get_node("ElevenLabsTTS")
 
 # Variable used to determine if player can use proximity interaction
 var close_enough_to_talk : bool = false
 
 # Variable used to determine if already talking
 var mic_active : bool = false
+
 
 
 func _ready():
@@ -38,11 +51,21 @@ func _ready():
 	# Connect AI response generated signal from GPT to handler function
 	gpt_node.connect("AI_response_generated", self, "_on_gpt_3_5_turbo_processed")
 	
+	# Connect AI response generated signal from ConvAI to handler function
+	convai_node.connect("AI_response_generated", self, "_on_convai_processed")
+	
 	# Set wit.ai API key
-	wit_ai_node.set_token("put_your_token_here")
+#	wit_ai_node.set_token("insert your token here")
 	
 	# Set GPT API key
-	gpt_node.set_api_key("put_your_API_key_here")
+#	gpt_node.set_api_key("insert your key here")
+	
+	# Set ConvAI API key
+	#convai_node.set_api_key("insert your key here")
+	
+	# Set ElevenLabs API key
+	#eleven_labs_tts_node.set_api_key("insert your key here")
+	
 	
 # Handler for player VR button presses to determine if player is trying to activate or stop mic while in proximity of NPC
 func _on_player_controller_button_pressed(button):
@@ -94,11 +117,22 @@ func _on_npc_area_interaction_area_clicked(location):
 # Function called when wit.ai finishes processing speech to text, use the text it produces to call GPT	
 func _on_wit_ai_processed(dialogue : String):
 	gpt_node.call_GPT(dialogue)
+	#convai_node.call_convAI(dialogue)
 
 
 # Function called when GPT 3.5 turbo finishes processes AI dialogue response, use text_to_speech addon node to play the audio response	
 # If you are using a different text to speech solution, the command to call it could be used instead of text_to_speech.speak(dialogue) here.
 func _on_gpt_3_5_turbo_processed(dialogue : String):
 	mic_active_label3D.visible = false
-	text_to_speech.speak(dialogue)
-	
+	if text_to_speech_choice == text_to_speech_type.GODOT:
+		text_to_speech.speak(dialogue)
+	else:
+		eleven_labs_tts_node.call_ElevenLabs(dialogue)
+
+# Function called when convAI finishes processes AI dialogue response, use text_to_speech addon node to play the audio response	
+func _on_convai_processed(dialogue : String):
+	mic_active_label3D.visible = false
+	if text_to_speech_choice == text_to_speech_type.GODOT:
+		text_to_speech.speak(dialogue)
+	else:
+		eleven_labs_tts_node.call_ElevenLabs(dialogue)

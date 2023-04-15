@@ -127,9 +127,10 @@ func end_voice_command():
 			add_child(request)
 			request.connect("request_completed",self,"_http_request_completed")
 			var error = request.request_raw("https://api.wit.ai/speech", ["Authorization: Bearer %s"%token, "Content-type: audio/raw;encoding=signed-integer;bits=16;rate=%d;endian=big"%target_rate], true, HTTPClient.METHOD_POST, audio_content)
-			print(error)
+			#print(error)
 			if error != OK:
 				push_error("An error occurred in the HTTP request.")
+				
 
 
 # Called when the HTTP request to wit.ai is completed.

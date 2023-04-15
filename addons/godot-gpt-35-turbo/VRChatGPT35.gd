@@ -10,7 +10,7 @@ signal AI_response_generated(response)
 # Signal used to alert that messages have been summarized if message cache used
 signal messages_summarized(summary)
 
-export(String) var api_key = "sk-put_your_api_key_here" setget set_api_key # As of creation, should start with sk-
+export(String) var api_key = "insert your api key here" setget set_api_key # As of creation, should start with sk-
 export(float, 0.0, 1.0) var temperature = 0.5 setget set_temperature # how creative or strict the NPC responds, set between 0 and 1.
 export(String) var npc_background_directions = "You are a non-playable character in a video game.  You are a robot.  Your name is Bob.  Your job is taping boxes of supplies.  You love organization.  You hate mess. Your boss is Robbie the Robot. Robbie is a difficult boss who makes a lot of demands.  You respond to the user's questions as if you are in the video game world with the player."   # Used to give GPT some instructions as to the character's background.
 export(String) var sample_npc_question_prompt = "Hi, what do you do here?"  # Create a sample question the reinforces the NPC's character traits
@@ -20,7 +20,7 @@ export(String) var sample_npc_prompt_response = "Greetings fellow worker! My nam
 export(int, 0, 20) var num_cache_messages = 4
 
 var url = "https://api.openai.com/v1/chat/completions" 
-var headers = ["Content-Type: application/json", "Authorization: Bearer " + api_key]
+var headers
 var engine = "gpt-3.5-turbo" 
 var http_request : HTTPRequest
 var summarize_http_request : HTTPRequest
@@ -38,6 +38,7 @@ func _ready():
 	add_child(summarize_http_request)
 	summarize_http_request.connect("request_completed", self, "_on_summarize_request_completed")
 
+	headers = ["Content-Type: application/json", "Authorization: Bearer " + api_key]
 		
 func call_GPT(prompt):
 	# if using past messages array, and has stored max number of messages, call summarize function which will summarize messages so far and clear the cache
@@ -105,7 +106,7 @@ func summarize_GPT(messages : Array):
 func _on_summarize_request_completed(result, responseCode, headers, body):
 	# Should recieve 200 if all is fine; if not print code
 	if responseCode != 200:
-		print("There was an error, response code:" + responseCode)
+		print("There was an error, response code:" + str(responseCode))
 		return
 		
 	var data = body.get_string_from_utf8()#fix_chunked_response(body.get_string_from_utf8())
@@ -134,7 +135,7 @@ func set_temperature(new_temperature : float):
 # Setter function for API Key
 func set_api_key(new_api_key : String):
 	api_key = new_api_key
-
+	headers = ["Content-Type: application/json", "Authorization: Bearer " + api_key]
 
 #If needed someday
 func fix_chunked_response(data):

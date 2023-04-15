@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=2]
+[gd_scene load_steps=42 format=2]
 
 [ext_resource path="res://demo/player/VR_Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://assets/models/kenney/kenney_conveyor-kit/Models/GLTF format/structure-yellow-medium.glb" type="PackedScene" id=2]
@@ -28,6 +28,8 @@
 [ext_resource path="res://addons/godot-tts/TTS.gd" type="Script" id=26]
 [ext_resource path="res://scripts/npc_interaction_area.gd" type="Script" id=27]
 [ext_resource path="res://fonts/droid-sans/DroidSans.ttf" type="DynamicFontData" id=28]
+[ext_resource path="res://addons/godot-convAI/GodotConvAI.tscn" type="PackedScene" id=29]
+[ext_resource path="res://addons/godot-elevenlabs-tts/ElevenLabsTTS.tscn" type="PackedScene" id=30]
 
 [sub_resource type="CubeMesh" id=1]
 size = Vector3( 10, 0.25, 10 )
@@ -335,6 +337,7 @@ autowrap = true
 width = 600.0
 
 [node name="Godot-AI-NPC-Controller" parent="." instance=ExtResource( 24 )]
+text_to_speech_choice = 1
 
 [node name="VRVoiceControl-WitAI" parent="Godot-AI-NPC-Controller" instance=ExtResource( 25 )]
 
@@ -359,3 +362,7 @@ pixel_size = 0.001
 modulate = Color( 0.882353, 0.0431373, 0.160784, 1 )
 text = "Mic recording..."
 font = SubResource( 11 )
+
+[node name="GodotConvAI" parent="Godot-AI-NPC-Controller" instance=ExtResource( 29 )]
+
+[node name="ElevenLabsTTS" parent="Godot-AI-NPC-Controller" instance=ExtResource( 30 )]
