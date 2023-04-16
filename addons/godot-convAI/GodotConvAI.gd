@@ -13,9 +13,9 @@ export(String) var convai_session_id = "-1" setget set_session_id
 export(String) var convai_character_id = "insert your convai character code"
 export(bool) var voice_response = false
 var url = "https://api.convai.com/character/getResponse" 
-var headers = ["CONVAI-API-KEY: " + api_key, "Content-Type: application/json"]
+var headers
 var http_request : HTTPRequest
-
+var http_client : HTTPClient
 
 func _ready():
 	# set up normal http request node for calls to call_GPT function
@@ -23,8 +23,15 @@ func _ready():
 	add_child(http_request)
 	http_request.connect("request_completed", self, "_on_request_completed")
 	
+	# add http client to perform transition from dictionary to form-data needed for convAI API
+	http_client = HTTPClient.new()
+	
 	set_api_key(api_key)
 	set_session_id(convai_session_id)
+	set_character_id(convai_character_id)
+	
+	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/x-www-form-urlencoded"])
+	
 		
 func call_convAI(prompt):
 	var voice_response_string : String
@@ -34,17 +41,19 @@ func call_convAI(prompt):
 	else:
 		voice_response_string = "False"
 			
-	print("calling convAI")
-	var body = JSON.print({
+	#print("calling convAI")
+	var body = {
 		"userText": prompt,
 		"charID": convai_character_id,
 		"sessionID": convai_session_id,
 		"voiceResponse": voice_response_string
-	})
+	}
 	
-	print(body)
+	var form_data = http_client.query_string_from_dict(body)
+	#print(form_data)
+	
 	# Now call convAI
-	var error = http_request.request(url, headers, true, HTTPClient.METHOD_POST, body)
+	var error = http_request.request(url, headers, true, HTTPClient.METHOD_POST, form_data)
 	
 	if error != OK:
 		push_error("Something Went Wrong!")
@@ -60,11 +69,11 @@ func _on_request_completed(result, responseCode, headers, body):
 		return
 		
 	var data = body.get_string_from_utf8()#fix_chunked_response(body.get_string_from_utf8())
-	print ("Data received: %s"%data)
+	#print ("Data received: %s"%data)
 	var response = parse_json(data)
 	var AI_generated_dialogue = response["text"]
 	set_session_id(response["sessionID"])
-	# Let other nodes know that AI generated dialogue is ready from GPT	
+	# Let other nodes know that AI generated dialogue is ready from convAI	
 	emit_signal("AI_response_generated", AI_generated_dialogue)
 	
 	
@@ -83,7 +92,10 @@ func set_api_key(new_api_key : String):
 	api_key = new_api_key
 	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/json"])
 
-
+func reset_session():
+	convai_session_id = "-1"
+	
+	
 #If needed someday
 func fix_chunked_response(data):
 	var tmp = data.replace("}\r\n{","},\n{")
