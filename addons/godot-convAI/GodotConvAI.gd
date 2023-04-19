@@ -16,16 +16,21 @@ export(String) var convai_character_id = "insert your convai character code"
 export(bool) var voice_response = false
 export(int) var voice_sample_rate = 22050
 export(float,-10.0, 10.0) var voice_pitch_scale = 1.0
+export(bool) var use_standalone_text_to_speech = false setget set_use_standalone_tts
 var url = "https://api.convai.com/character/getResponse" 
+var tts_url = "https://api.convai.com/tts/"
 var headers
+var tts_headers
 var http_request : HTTPRequest
 var http_client : HTTPClient
 var convai_speech_player : AudioStreamPlayer
 var convai_stream : AudioStreamSample
+var convai_tts_stream : AudioStreamMP3
+var TTS_http_request : HTTPRequest
 
 
 func _ready():
-	# set up normal http request node for calls to call_GPT function
+	# set up normal http request node for calls to call_convAI function
 	http_request = HTTPRequest.new()
 	add_child(http_request)
 	http_request.connect("request_completed", self, "_on_request_completed")
@@ -38,8 +43,16 @@ func _ready():
 	set_character_id(convai_character_id)
 	set_voice_response_mode(voice_response)
 	
-	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/x-www-form-urlencoded"])
+	# set up second http request and response signal for call_convAI_TTS function
+	TTS_http_request = HTTPRequest.new()
+	add_child(TTS_http_request)
+	if use_standalone_text_to_speech == true:
+		TTS_http_request.set_download_file("user://convaiaudio.mp3")
+		convai_tts_stream = AudioStreamMP3.new()
+	TTS_http_request.connect("request_completed", self, "_on_TTS_request_completed")
 	
+	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/x-www-form-urlencoded"])
+	tts_headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/json"])
 	# Create audio player node for speech playback
 	convai_speech_player = AudioStreamPlayer.new()
 	convai_speech_player.pitch_scale = voice_pitch_scale
@@ -73,6 +86,7 @@ func call_convAI(prompt):
 		push_error("Something Went Wrong!")
 		print(error)
 	
+	
 # This GDScript code is used to handle the response from a request.
 func _on_request_completed(result, responseCode, headers, body):
 	# Should recieve 200 if all is fine; if not print code
@@ -103,6 +117,45 @@ func _on_request_completed(result, responseCode, headers, body):
 		convai_speech_player.set_stream(convai_stream)
 		convai_speech_player.play()
 		emit_signal("convAI_voice_sample_played")
+
+
+# Function to call convAI's standalone text-to-speech API (not using convAI to generate AI response text)
+func call_convAI_TTS(text):
+	
+	var body = JSON.print({
+		"transcript": text,
+		"voice": "WUMale 1",
+		"filename": "convaiaudio",
+		"encoding": "mp3"
+	})
+	
+	# Now call convAI TTS
+	var error = TTS_http_request.request(tts_url, tts_headers, true, HTTPClient.METHOD_POST, body)
+	
+	if error != OK:
+		push_error("Something Went Wrong!")
+
+
+# Receiver function for when using call to convAI in standalone text to speech mode (not using Convai for AI generated response content)
+func _on_TTS_request_completed(result, responseCode, headers, body):
+	# Should recieve 200 if all is fine; if not print code
+	if responseCode != 200:
+		print("There was an error, response code:" + str(responseCode))
+		print(result)
+		print(headers)
+		print(body)
+		return
+		
+	#var audio_file_from_convai = body
+	
+	var file = File.new()
+	var err = file.open("user://convaiaudio.mp3", File.READ)
+	var bytes = file.get_buffer(file.get_len())
+	convai_tts_stream.data = bytes 
+	convai_speech_player.set_stream(convai_tts_stream)
+	convai_speech_player.play()
+	
+	emit_signal("convAI_voice_sample_played")
 	
 # Setter function for character
 func set_character_id(new_character_id : String):
@@ -120,14 +173,28 @@ func set_api_key(new_api_key : String):
 	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/json"])
 
 
+# Reset session ID so conversation is not remembered
 func reset_session():
 	convai_session_id = "-1"
 	
-
+	
+# Determine if AI-generated response content also includes and uses voice file
 func set_voice_response_mode(mode : bool):
 	voice_response = mode
 	
-		
+
+# Set if using convAI solely for standalone text to speech
+func set_use_standalone_tts(mode : bool):
+	use_standalone_text_to_speech = mode
+	if mode == true and TTS_http_request:
+		TTS_http_request.set_download_file("user://convaiaudio.mp3")
+	elif mode == false and TTS_http_request:
+		TTS_http_request.set_download_file("")
+	
+	# Create tts stream if it has not already been created
+	if mode == true and convai_tts_stream == null:
+		convai_tts_stream = AudioStreamMP3.new()			
+				
 #If needed someday
 func fix_chunked_response(data):
 	var tmp = data.replace("}\r\n{","},\n{")

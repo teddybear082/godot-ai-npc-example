@@ -77,9 +77,14 @@ func _ready():
 	
 	# If text to speech mode is convai, then override to set AI choice automatically to convai as well, and set convai node voice response to true
 	if text_to_speech_choice == text_to_speech_type.CONVAI:
-		ai_brain_type_choice = ai_brain_type.CONVAI
-		convai_node.set_voice_response_mode(true)
-		
+#		ai_brain_type_choice = ai_brain_type.CONVAI
+#		convai_node.set_voice_response_mode(true)
+		if ai_brain_type_choice == ai_brain_type.CONVAI:
+			convai_node.set_voice_response_mode(true)
+		else:
+			convai_node.set_voice_response_mode(false)
+			convai_node.set_use_standalone_tts(true)	
+			
 # Handler for player VR button presses to determine if player is trying to activate or stop mic while in proximity of NPC
 func _on_player_controller_button_pressed(button):
 	if button != activate_mic_button:
@@ -134,15 +139,17 @@ func _on_wit_ai_processed(dialogue : String):
 	else:
 		gpt_node.call_GPT(dialogue)
 
-# Function called when GPT 3.5 turbo finishes processes AI dialogue response, use text_to_speech addon node to play the audio response	
-# If you are using a different text to speech solution, the command to call it could be used instead of text_to_speech.speak(dialogue) here.
+
+# Function called when GPT 3.5 turbo finishes processes AI dialogue response, use text_to_speech addon node, Eleven AI or ConvAI to play the audio response	
+# If you are using a different text to speech solution, the command to call it could be used here instead.
 func _on_gpt_3_5_turbo_processed(dialogue : String):
 	mic_active_label3D.visible = false
 	if text_to_speech_choice == text_to_speech_type.GODOT:
 		text_to_speech.speak(dialogue)
-	else:
+	elif text_to_speech_choice == text_to_speech_type.ELEVENLABS:
 		eleven_labs_tts_node.call_ElevenLabs(dialogue)
-
+	else:
+		convai_node.call_convAI_TTS(dialogue)
 
 # Function called when convAI finishes processes AI dialogue response, use Convai node, text_to_speech addon node or Eleven Labs to play the audio response depending on user choice	
 func _on_convai_processed(dialogue : String):
