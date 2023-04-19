@@ -4,18 +4,25 @@ extends Node
 ## export variable for api_key and in the ready script for Godot-AI-NPC Controller
 ## (if using the demo scene).
 
-#Signal used to alert other entities of the final GPT response text
+# Signal used to alert other entities of the final convAI response text
 signal AI_response_generated(response)
 
+# Signal used to alert other entities that voice sample was played
+signal convAI_voice_sample_played
 
 export(String) var api_key = "insert your api key" setget set_api_key # Your API key from convai.com
 export(String) var convai_session_id = "-1" setget set_session_id
 export(String) var convai_character_id = "insert your convai character code"
 export(bool) var voice_response = false
+export(int) var voice_sample_rate = 22050
+export(float,-10.0, 10.0) var voice_pitch_scale = 1.0
 var url = "https://api.convai.com/character/getResponse" 
 var headers
 var http_request : HTTPRequest
 var http_client : HTTPClient
+var convai_speech_player : AudioStreamPlayer
+var convai_stream : AudioStreamSample
+
 
 func _ready():
 	# set up normal http request node for calls to call_GPT function
@@ -29,9 +36,16 @@ func _ready():
 	set_api_key(api_key)
 	set_session_id(convai_session_id)
 	set_character_id(convai_character_id)
+	set_voice_response_mode(voice_response)
 	
 	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/x-www-form-urlencoded"])
 	
+	# Create audio player node for speech playback
+	convai_speech_player = AudioStreamPlayer.new()
+	convai_speech_player.pitch_scale = voice_pitch_scale
+	add_child(convai_speech_player)
+	convai_stream = AudioStreamSample.new()	
+		
 		
 func call_convAI(prompt):
 	var voice_response_string : String
@@ -41,7 +55,7 @@ func call_convAI(prompt):
 	else:
 		voice_response_string = "False"
 			
-	#print("calling convAI")
+	#print("calling convAI with prompt:" + prompt)
 	var body = {
 		"userText": prompt,
 		"charID": convai_character_id,
@@ -64,6 +78,7 @@ func _on_request_completed(result, responseCode, headers, body):
 	# Should recieve 200 if all is fine; if not print code
 	if responseCode != 200:
 		print("There was an error, response code:" + str(responseCode))
+		print(result)
 		print(headers)
 		print(body)
 		return
@@ -76,6 +91,18 @@ func _on_request_completed(result, responseCode, headers, body):
 	# Let other nodes know that AI generated dialogue is ready from convAI	
 	emit_signal("AI_response_generated", AI_generated_dialogue)
 	
+	# If voice response is true, get audio from response from convAI and make it a .wav audio stream
+	if voice_response == true:
+		var AI_generated_audio = response["audio"]
+		#print(AI_generated_audio)
+		var encoded_audio = Marshalls.base64_to_raw(AI_generated_audio)
+		convai_stream.data = encoded_audio
+		convai_stream.loop_mode = AudioStreamSample.LOOP_DISABLED
+		convai_stream.format = AudioStreamSample.FORMAT_16_BITS
+		convai_stream.mix_rate = voice_sample_rate
+		convai_speech_player.set_stream(convai_stream)
+		convai_speech_player.play()
+		emit_signal("convAI_voice_sample_played")
 	
 # Setter function for character
 func set_character_id(new_character_id : String):
@@ -92,10 +119,15 @@ func set_api_key(new_api_key : String):
 	api_key = new_api_key
 	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/json"])
 
+
 func reset_session():
 	convai_session_id = "-1"
 	
+
+func set_voice_response_mode(mode : bool):
+	voice_response = mode
 	
+		
 #If needed someday
 func fix_chunked_response(data):
 	var tmp = data.replace("}\r\n{","},\n{")

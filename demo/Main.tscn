@@ -337,6 +337,7 @@ autowrap = true
 width = 600.0
 
 [node name="Godot-AI-NPC-Controller" parent="." instance=ExtResource( 24 )]
+text_to_speech_choice = 2
 
 [node name="VRVoiceControl-WitAI" parent="Godot-AI-NPC-Controller" instance=ExtResource( 25 )]
 

@@ -195,6 +195,7 @@ func _on_voice_command_detected(intent: String):
 		# Example of matching intent to an in-game action for a voice command, here used to quit the game, rather than speech
 		"quit_game":
 			get_tree().quit()
+	#print(selected_text)
 	emit_signal("wit_ai_speech_to_text_received", selected_text)
 	#print("wit emitted text received signal")
 

@@ -69,6 +69,7 @@ func _on_request_completed(result, responseCode, headers, body):
 	# Should recieve 200 if all is fine; if not print code
 	if responseCode != 200:
 		print("There was an error, response code:" + str(responseCode))
+		print(result)
 		print(headers)
 		print(body)
 		return
@@ -92,6 +93,7 @@ func set_api_key(new_api_key):
 		headers = PoolStringArray(["accept: */*", "xi-api-key: " + api_key, "Content-Type: application/json"])
 	else:
 		headers = PoolStringArray(["accept: audio/mpeg", "xi-api-key: " + api_key, "Content-Type: application/json"])
+		
 		
 # Set new character code		
 func set_character_code(new_code):
