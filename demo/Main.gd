@@ -29,6 +29,8 @@ func _process(delta):
 		return
 		
 	if player_left_controller.is_button_pressed(XRTools.Buttons.VR_GRIP) and player_right_controller.is_button_pressed(XRTools.Buttons.VR_GRIP):
+		ai_npc_controller.save_api_info()
+		yield(ai_npc_controller, "options_saved")
 		get_tree().quit() 
 		
 		

@@ -384,10 +384,6 @@ config/name="godot-ai-npc-example"
 run/main_scene="res://demo/Main.tscn"
 config/icon="res://icon.png"
 
-[audio]
-
-enable_audio_input=true
-
 [autoload]
 
 XRToolsUserSettings="*res://addons/godot-xr-tools/user_settings/user_settings.gd"

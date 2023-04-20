@@ -39,6 +39,9 @@ var interface_enabled = false
 
 func _ready():
 	#token = "put your wit.ai token here"
+	# Make sure audio input is enabled even if program is not set to otherwise to prevent inadvertent errors in use
+	ProjectSettings.set_setting("audio/enable_audio_input", true)
+	
 	endpoint = "https://api.wit.ai/speech"
 	audio_buffer.resize(2*target_rate*maxlen_sec)
 	
@@ -202,3 +205,4 @@ func _on_voice_command_detected(intent: String):
 
 func set_token(new_token : String):
 	token = new_token
+	

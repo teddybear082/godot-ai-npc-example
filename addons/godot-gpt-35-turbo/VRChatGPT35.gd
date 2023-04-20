@@ -69,6 +69,9 @@ func _on_request_completed(result, responseCode, headers, body):
 	# Should recieve 200 if all is fine; if not print code
 	if responseCode != 200:
 		print("There was an error, response code:" + responseCode)
+		print(result)
+		print(headers)
+		print(body)
 		return
 		
 	var data = body.get_string_from_utf8()#fix_chunked_response(body.get_string_from_utf8())
@@ -107,6 +110,9 @@ func _on_summarize_request_completed(result, responseCode, headers, body):
 	# Should recieve 200 if all is fine; if not print code
 	if responseCode != 200:
 		print("There was an error, response code:" + str(responseCode))
+		print(result)
+		print(headers)
+		print(body)
 		return
 		
 	var data = body.get_string_from_utf8()#fix_chunked_response(body.get_string_from_utf8())

@@ -170,8 +170,8 @@ func set_session_id(new_session_id : String):
 # Setter function for API Key
 func set_api_key(new_api_key : String):
 	api_key = new_api_key
-	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/json"])
-
+	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/x-www-form-urlencoded"])
+	tts_headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/json"])
 
 # Reset session ID so conversation is not remembered
 func reset_session():
