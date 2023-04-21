@@ -17,6 +17,59 @@ export(bool) var voice_response = false
 export(int) var voice_sample_rate = 22050
 export(float,-10.0, 10.0) var voice_pitch_scale = 1.0
 export(bool) var use_standalone_text_to_speech = false setget set_use_standalone_tts
+
+# Array of standard convai voices as of creation of this script (April 2023): https://docs.convai.com/api-docs/reference/core-api-reference/standalone-voice-api/text-to-speech-api
+var convai_standalone_tts_voices : Array = [
+	"WUKMale 1",
+	"WUKMale 2",
+	"WUKFemale 1",
+	"WUKFemale 2",
+	"WUKFemale 3",
+	"WAMale 1",
+	"WAMale 2",
+	"WAFemale 1",
+	"WAFemale 2",
+	"WIMale 1",
+	"WIMale 2",
+	"WIFemale 1",
+	"WIFemale 2",
+	"WUMale 1",
+	"WUMale 2",
+	"WUMale 3",
+	"WUMale 4",
+	"WUMale 5",
+	"WUFemale 1",
+	"WUFemale 2",
+	"WUFemale 3",
+	"WUFemale 4",
+	"WUFemale 5"
+]
+
+# Specific selection for standalone voice - this can be used without the array, but the array may be useful for randomizing results or otherwise choosing appropriate selection in code
+export(String, "WUKMale 1",
+	"WUKMale 2",
+	"WUKFemale 1",
+	"WUKFemale 2",
+	"WUKFemale 3",
+	"WAMale 1",
+	"WAMale 2",
+	"WAFemale 1",
+	"WAFemale 2",
+	"WIMale 1",
+	"WIMale 2",
+	"WIFemale 1",
+	"WIFemale 2",
+	"WUMale 1",
+	"WUMale 2",
+	"WUMale 3",
+	"WUMale 4",
+	"WUMale 5",
+	"WUFemale 1",
+	"WUFemale 2",
+	"WUFemale 3",
+	"WUFemale 4",
+	"WUFemale 5") var convai_standalone_tts_voice_selection = "WUMale 1" setget set_convai_standalone_tts_voice
+#var convai_standalone_tts_voice_selection = "WUMale 1"
 var url = "https://api.convai.com/character/getResponse" 
 var tts_url = "https://api.convai.com/tts/"
 var headers
@@ -30,12 +83,12 @@ var TTS_http_request : HTTPRequest
 
 
 func _ready():
-	# set up normal http request node for calls to call_convAI function
+	# Set up normal http request node for calls to call_convAI function
 	http_request = HTTPRequest.new()
 	add_child(http_request)
 	http_request.connect("request_completed", self, "_on_request_completed")
 	
-	# add http client to perform transition from dictionary to form-data needed for convAI API
+	# Add http client to perform transition from dictionary to form-data needed for convAI API
 	http_client = HTTPClient.new()
 	
 	set_api_key(api_key)
@@ -43,7 +96,7 @@ func _ready():
 	set_character_id(convai_character_id)
 	set_voice_response_mode(voice_response)
 	
-	# set up second http request and response signal for call_convAI_TTS function
+	# Set up second http request and response signal for call_convAI_TTS function
 	TTS_http_request = HTTPRequest.new()
 	add_child(TTS_http_request)
 	if use_standalone_text_to_speech == true:
@@ -51,8 +104,10 @@ func _ready():
 		convai_tts_stream = AudioStreamMP3.new()
 	TTS_http_request.connect("request_completed", self, "_on_TTS_request_completed")
 	
+	# Set up headers for use for normal convAI AI-generated speech responses and standalone text-to-speech
 	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/x-www-form-urlencoded"])
 	tts_headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/json"])
+	
 	# Create audio player node for speech playback
 	convai_speech_player = AudioStreamPlayer.new()
 	convai_speech_player.pitch_scale = voice_pitch_scale
@@ -124,7 +179,7 @@ func call_convAI_TTS(text):
 	
 	var body = JSON.print({
 		"transcript": text,
-		"voice": "WUMale 1",
+		"voice": convai_standalone_tts_voice_selection,
 		"filename": "convaiaudio",
 		"encoding": "mp3"
 	})
@@ -194,7 +249,16 @@ func set_use_standalone_tts(mode : bool):
 	# Create tts stream if it has not already been created
 	if mode == true and convai_tts_stream == null:
 		convai_tts_stream = AudioStreamMP3.new()			
-				
+
+
+# Allow setting of convai standalone tts voice
+func set_convai_standalone_tts_voice(selection : String):
+	if !convai_standalone_tts_voices.has(selection):
+		print("error, standalone voice selection string does not exist in Convai options")
+		return
+	convai_standalone_tts_voice_selection = selection
+		
+					
 #If needed someday
 func fix_chunked_response(data):
 	var tmp = data.replace("}\r\n{","},\n{")

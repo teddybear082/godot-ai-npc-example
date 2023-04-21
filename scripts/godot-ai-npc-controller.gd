@@ -64,10 +64,12 @@ var gpt_temperature : float
 var convai_api_key : String
 var convai_character_id : String
 var convai_session_id : String
+var convai_standalone_tts_voice
 var eleven_labs_api_key : String
 var eleven_labs_character_code : String
 var config_text_to_speech_choice
 var config_ai_brain_type_choice
+
 
 func _ready():
 	# Load config file so it is ready if needed
@@ -113,6 +115,9 @@ func _ready():
 		# Set Convai Session ID
 		convai_node.set_session_id(convai_session_id)
 
+		# Set Convai Standalone Voice selection
+		convai_node.set_convai_standalone_tts_voice(convai_standalone_tts_voice)
+		
 		# Set ElevenLabs API key
 		eleven_labs_tts_node.set_api_key(eleven_labs_api_key)
 
@@ -235,6 +240,7 @@ func save_api_info():
 		prefs_cfg.set_value("api_keys", "convai_api_key", convai_api_key)
 		prefs_cfg.set_value("api_keys", "convai_character_id", convai_character_id)
 		prefs_cfg.set_value("api_keys", "convai_session_id", convai_session_id)
+		prefs_cfg.set_value("convai_options", "convai_standalone_tts_voice", convai_standalone_tts_voice)
 		prefs_cfg.set_value("api_keys", "eleven_labs_api_key", eleven_labs_api_key)
 		prefs_cfg.set_value("api_keys", "eleven_labs_character_code", eleven_labs_character_code)
 		prefs_cfg.set_value("ai_npc_options", "ai_npc_controller_tts_choice", text_to_speech_choice)
@@ -258,6 +264,7 @@ func load_api_info():
 		convai_api_key = prefs_cfg.get_value("api_keys", "convai_api_key", "insert your api key")
 		convai_character_id = prefs_cfg.get_value("api_keys", "convai_character_id", "insert your convai character code")
 		convai_session_id = prefs_cfg.get_value("api_keys", "convai_session_id", "-1")
+		convai_standalone_tts_voice = prefs_cfg.get_value("convai_options", "convai_standalone_tts_voice", "WUMale 1")
 		eleven_labs_api_key = prefs_cfg.get_value("api_keys", "eleven_labs_api_key", "insert your Eleven Labs API Key")
 		eleven_labs_character_code = prefs_cfg.get_value("api_keys", "eleven_labs_character_code", "nccuBdAiU0VZsr2UBFyD")
 		config_text_to_speech_choice = prefs_cfg.get_value("ai_npc_options", "ai_npc_controller_tts_choice", text_to_speech_type.GODOT)
