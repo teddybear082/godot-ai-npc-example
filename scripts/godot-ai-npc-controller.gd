@@ -69,7 +69,7 @@ var eleven_labs_api_key : String
 var eleven_labs_character_code : String
 var config_text_to_speech_choice
 var config_ai_brain_type_choice
-
+var use_convai_stream_mode : bool = true
 
 func _ready():
 	# Load config file so it is ready if needed
@@ -188,7 +188,10 @@ func _on_npc_area_interaction_area_clicked(location):
 # Function called when wit.ai finishes processing speech to text, use the text it produces to call GPT	
 func _on_wit_ai_processed(dialogue : String):
 	if ai_brain_type_choice == ai_brain_type.CONVAI:
-		convai_node.call_convAI(dialogue)
+		if use_convai_stream_mode == false:
+			convai_node.call_convAI(dialogue)
+		else:
+			convai_node.call_convAI_stream(dialogue)
 	else:
 		gpt_node.call_GPT(dialogue)
 

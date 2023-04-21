@@ -80,6 +80,8 @@ var convai_speech_player : AudioStreamPlayer
 var convai_stream : AudioStreamSample
 var convai_tts_stream : AudioStreamMP3
 var TTS_http_request : HTTPRequest
+var stream_http_request : HTTPRequest
+var stored_streamed_audio : PoolByteArray = []
 
 
 func _ready():
@@ -104,6 +106,11 @@ func _ready():
 		convai_tts_stream = AudioStreamMP3.new()
 	TTS_http_request.connect("request_completed", self, "_on_TTS_request_completed")
 	
+	# Set up third http request anad response signal for call_convAI_stream function
+	stream_http_request = HTTPRequest.new()
+	add_child(stream_http_request)
+	stream_http_request.connect("request_completed", self, "_on_stream_request_completed")
+	
 	# Set up headers for use for normal convAI AI-generated speech responses and standalone text-to-speech
 	headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/x-www-form-urlencoded"])
 	tts_headers = PoolStringArray(["CONVAI-API-KEY: " + api_key, "Content-Type: application/json"])
@@ -111,9 +118,9 @@ func _ready():
 	# Create audio player node for speech playback
 	convai_speech_player = AudioStreamPlayer.new()
 	convai_speech_player.pitch_scale = voice_pitch_scale
+	convai_speech_player.connect("finished", self, "_on_speech_player_finished")
 	add_child(convai_speech_player)
 	convai_stream = AudioStreamSample.new()	
-		
 		
 func call_convAI(prompt):
 	var voice_response_string : String
@@ -211,7 +218,83 @@ func _on_TTS_request_completed(result, responseCode, headers, body):
 	convai_speech_player.play()
 	
 	emit_signal("convAI_voice_sample_played")
+
+
+# Function to call convAI's AI generation using convAI's stream protocol instead, should be faster for response time
+func call_convAI_stream(prompt):
+	var voice_response_string : String
 	
+	if voice_response == true:
+		voice_response_string = "True"
+	else:
+		voice_response_string = "False"
+			
+	#print("calling convAI with prompt:" + prompt)
+	var body = {
+		"userText": prompt,
+		"charID": convai_character_id,
+		"sessionID": convai_session_id,
+		"voiceResponse": voice_response_string,
+		"stream": "True"
+	}
+	
+	var form_data = http_client.query_string_from_dict(body)
+	#print(form_data)
+	
+	# Now call convAI
+	var error = stream_http_request.request(url, headers, true, HTTPClient.METHOD_POST, form_data)
+	
+	if error != OK:
+		push_error("Something Went Wrong!")
+		print(error)
+	
+
+
+# Function to receive response to convAI's AI generation using the stream protocol
+func _on_stream_request_completed(result, responseCode, headers, body):
+	# Should recieve 200 if all is fine; if not print code
+	if responseCode != 200:
+		print("There was an error, response code:" + str(responseCode))
+		print(result)
+		print(headers)
+		print(body)
+		return
+		
+	var body_text = body.get_string_from_utf8()
+	var lines = body_text.split("\n")
+	for line in lines:
+		if line.begins_with("data:"):
+			var data = line.substr(5).strip_edges() # Remove "data:" and strip any whitespace
+			var data_json = parse_json(data)
+			if "text" in data_json:
+				#print("Text: ", data_json["text"])
+				var AI_generated_dialogue = data_json["text"]
+				# Let other nodes know that AI generated dialogue is ready from convAI	
+				emit_signal("AI_response_generated", AI_generated_dialogue)
+				
+			if "sessionID" in data_json:
+				#print("SessionID: ", data_json["sessionID"])
+				set_session_id(data_json["sessionID"])
+				
+			if (voice_response == true) and ("audio" in data_json):
+				#print("Audio received: ", data_json["audio"])
+				var AI_generated_audio = data_json["audio"]
+				#print(AI_generated_audio)
+				var encoded_audio = Marshalls.base64_to_raw(AI_generated_audio)
+				stored_streamed_audio.append_array(encoded_audio)
+				# If speech player not playing, play streamed audio and delete the queue if any; if audio is currently playing just queue audio for delivery after
+				if !convai_speech_player.playing:
+					#ok_to_play_streamed_audio = false
+					convai_stream.data = stored_streamed_audio#encoded_audio
+					convai_stream.loop_mode = AudioStreamSample.LOOP_DISABLED
+					convai_stream.format = AudioStreamSample.FORMAT_16_BITS
+					convai_stream.mix_rate = voice_sample_rate
+					convai_speech_player.set_stream(convai_stream)
+					convai_speech_player.play()
+					stored_streamed_audio.resize(0)
+					emit_signal("convAI_voice_sample_played")	
+	
+				
 # Setter function for character
 func set_character_id(new_character_id : String):
 	convai_character_id = new_character_id
@@ -258,7 +341,21 @@ func set_convai_standalone_tts_voice(selection : String):
 		return
 	convai_standalone_tts_voice_selection = selection
 		
-					
+		
+# Receiver function for when speech player finishes					
+func _on_speech_player_finished():
+	# If not using streamed audio endpoint, then stored_streamed_audio will always be zero, if using streaming, then will be over 0 if being queued while player is already playing
+	if stored_streamed_audio.size() > 0:
+		convai_stream.data = stored_streamed_audio
+		convai_stream.loop_mode = AudioStreamSample.LOOP_DISABLED
+		convai_stream.format = AudioStreamSample.FORMAT_16_BITS
+		convai_stream.mix_rate = voice_sample_rate
+		convai_speech_player.set_stream(convai_stream)
+		convai_speech_player.play()
+		stored_streamed_audio.resize(0)
+		emit_signal("convAI_voice_sample_played")
+	
+	
 #If needed someday
 func fix_chunked_response(data):
 	var tmp = data.replace("}\r\n{","},\n{")
