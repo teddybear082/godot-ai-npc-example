@@ -126,7 +126,7 @@ func _ready():
 
 		# Set own options
 		text_to_speech_choice = config_text_to_speech_choice
-		config_ai_brain_type_choice = config_ai_brain_type_choice
+		ai_brain_type_choice = config_ai_brain_type_choice
 
 	# If text to speech mode is convai, then override to set AI choice automatically to convai as well, and set convai node voice response to true
 	if text_to_speech_choice == text_to_speech_type.CONVAI:
