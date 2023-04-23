@@ -11,7 +11,7 @@ signal AI_response_generated(response)
 signal convAI_voice_sample_played
 
 export(String) var api_key = "insert your api key" setget set_api_key # Your API key from convai.com
-export(String) var convai_session_id = "-1" setget set_session_id
+export(String) var convai_session_id = "-1" setget set_session_id, get_session_id
 export(String) var convai_character_id = "insert your convai character code"
 export(bool) var voice_response = false
 export(int) var voice_sample_rate = 22050
@@ -226,6 +226,10 @@ func call_convAI_stream(prompt):
 	
 	if voice_response == true:
 		voice_response_string = "True"
+		# If we know we're using a voice response AND stream mode, then set the audio stream variables now so they will be ready
+		convai_stream.loop_mode = AudioStreamSample.LOOP_DISABLED
+		convai_stream.format = AudioStreamSample.FORMAT_16_BITS
+		convai_stream.mix_rate = voice_sample_rate
 	else:
 		voice_response_string = "False"
 			
@@ -284,11 +288,7 @@ func _on_stream_request_completed(result, responseCode, headers, body):
 				stored_streamed_audio.append_array(encoded_audio)
 				# If speech player not playing, play streamed audio and delete the queue if any; if audio is currently playing just queue audio for delivery after
 				if !convai_speech_player.playing:
-					#ok_to_play_streamed_audio = false
-					convai_stream.data = stored_streamed_audio#encoded_audio
-					convai_stream.loop_mode = AudioStreamSample.LOOP_DISABLED
-					convai_stream.format = AudioStreamSample.FORMAT_16_BITS
-					convai_stream.mix_rate = voice_sample_rate
+					convai_stream.data = stored_streamed_audio
 					convai_speech_player.set_stream(convai_stream)
 					convai_speech_player.play()
 					stored_streamed_audio.resize(0)
@@ -304,6 +304,10 @@ func set_character_id(new_character_id : String):
 func set_session_id(new_session_id : String):
 	convai_session_id = new_session_id
 
+
+# Getter function for session
+func get_session_id():
+	return convai_session_id
 
 # Setter function for API Key
 func set_api_key(new_api_key : String):
@@ -347,9 +351,6 @@ func _on_speech_player_finished():
 	# If not using streamed audio endpoint, then stored_streamed_audio will always be zero, if using streaming, then will be over 0 if being queued while player is already playing
 	if stored_streamed_audio.size() > 0:
 		convai_stream.data = stored_streamed_audio
-		convai_stream.loop_mode = AudioStreamSample.LOOP_DISABLED
-		convai_stream.format = AudioStreamSample.FORMAT_16_BITS
-		convai_stream.mix_rate = voice_sample_rate
 		convai_speech_player.set_stream(convai_stream)
 		convai_speech_player.play()
 		stored_streamed_audio.resize(0)
