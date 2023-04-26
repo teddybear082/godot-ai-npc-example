@@ -68,7 +68,7 @@ func call_GPT(prompt):
 func _on_request_completed(result, responseCode, headers, body):
 	# Should recieve 200 if all is fine; if not print code
 	if responseCode != 200:
-		print("There was an error, response code:" + responseCode)
+		print("There was an error, response code:" + str(responseCode))
 		print(result)
 		print(headers)
 		print(body)
